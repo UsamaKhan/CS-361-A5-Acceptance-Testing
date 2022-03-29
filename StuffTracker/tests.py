@@ -14,6 +14,7 @@ class LoginList(TestCase):
         self.monkey = Client()
         self.thingList ={"one":["cat","dog"],"two":["cake"]}
 
+        #fill test database with the things in thingList
         for i in self.thingList.keys():
             temp = MyUser(name=i,password=i)
             temp.save()
@@ -24,14 +25,17 @@ class LoginList(TestCase):
         for i in self.thingList.keys():
             resp = self.monkey.post("/",{"name":i,"password":i},follow=True)
             self.assertEqual(resp.context["name"],i,"name not passed from login to list")
+            #should check session as well
 
     def test_complete(self):
+        #complete, confirms all the items defined in thingList appear in their owner's page
         for i in self.thingList.keys():
             resp = self.monkey.post("/",{"name":i,"password":i},follow=True)
             for j in self.thingList[i]:
                 self.assertIn(j,resp.context["things"],"list missing an item, user: " + i)
 
     def test_precise(self):
+        #complete, makes ure that there are no extra items in any owner's page
         for i in self.thingList.keys():
             resp = self.monkey.post("/",{"name":i,"password":i},follow=True)
             for j in resp.context["things"]:
@@ -45,13 +49,18 @@ class LoginFail(TestCase):
     def setUp(self):
         self.monkey = Client()
         self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
-
+        #fill test database
         for i in self.thingList.keys():
             temp = MyUser(name=i, password=i)
             temp.save()
             for j in self.thingList[i]:
                 Stuff(name=j, owner=temp).save()
+                
+    #test methods should confirm correct error message is displayed when a bad password is entered. 
+    #I had separate tests for no password, someone else's password
 
 
 class AddItem(TestCase):
     pass
+    #need to create database in setup
+    #confirm that after an add item form is submitted, that the new item is in the database and appears in the response webpage
