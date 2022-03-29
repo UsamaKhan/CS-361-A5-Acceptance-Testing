@@ -52,34 +52,6 @@ class LoginFail(TestCase):
             for j in self.thingList[i]:
                 Stuff(name=j, owner=temp).save()
 
-    def test_noPassword(self):
-        resp = self.monkey.post("/", {"name": "one", "password": "three"}, follow=True)
-        self.assertEqual(resp.context["message"],"bad password","no failed login password, user:one, pass:three")
-
-    def test_OtherUserPassword(self):
-        resp = self.monkey.post("/", {"name": "one", "password": "two"}, follow=True)
-        self.assertEqual(resp.context["message"],"bad password","no failed login password, user:one, pass:two, two is valid for another user")
 
 class AddItem(TestCase):
-
-    monkey = None
-    thingList = None
-
-    def setUp(self):
-        self.monkey = Client()
-        self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
-
-        for i in self.thingList.keys():
-            temp = MyUser(name=i, password=i)
-            temp.save()
-            for j in self.thingList[i]:
-                Stuff(name=j, owner=temp).save()
-
-
-    def test_addItem(self):
-        c = self.monkey.session
-        c["name"] = "one"
-        c.save()
-        resp = self.monkey.post("/things/", {"stuff": "fish"}, follow=True)
-        print(resp.context)
-        self.assertListEqual(["cat","dog","fish"],resp.context["things"])
+    pass
