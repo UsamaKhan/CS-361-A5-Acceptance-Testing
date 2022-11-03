@@ -11,6 +11,7 @@ class LoginList(TestCase):
     thingList=None
 
     def setUp(self):
+        #completed
         self.monkey = Client()
         self.thingList ={"one":["cat","dog"],"two":["cake"]}
 
@@ -28,14 +29,14 @@ class LoginList(TestCase):
             #should check session as well
 
     def test_complete(self):
-        #complete, confirms all the items defined in thingList appear in their owner's page
+        #completed, confirms all the items defined in thingList appear in their owner's page
         for i in self.thingList.keys():
             resp = self.monkey.post("/",{"name":i,"password":i},follow=True)
             for j in self.thingList[i]:
                 self.assertIn(j,resp.context["things"],"list missing an item, user: " + i)
 
     def test_precise(self):
-        #complete, makes ure that there are no extra items in any owner's page
+        #completed, makes ure that there are no extra items in any owner's page
         for i in self.thingList.keys():
             resp = self.monkey.post("/",{"name":i,"password":i},follow=True)
             for j in resp.context["things"]:
@@ -47,6 +48,7 @@ class LoginFail(TestCase):
     thingList = None
 
     def setUp(self):
+        #completed
         self.monkey = Client()
         self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
         #fill test database
