@@ -3,26 +3,30 @@ from .models import Stuff, MyUser
 
 # Create your tests here.
 """
-Write a system test using Client that makes sure that on a successful login the correct user's item list is displayed. Load the test database with records to support your test.
-Write a system test using Client that makes sure on an unsuccessful login, the home page is redisplayed with a message. Load the test database with records to support your test.
-Write a system test that shows that an item added to the list immediately shows up in the rendered response. Load the test database with records to support your test.
+Write a system test using Client that makes sure that on a successful login the correct user's item list is 
+displayed. Load the test database with records to support your test. 
+Write a system test using Client that makes sure on an unsuccessful login, the home page is redisplayed with a message. 
+Load the test database with records to support your test. 
+Write a system test that shows that an item added to the list immediately shows up in the rendered response. Load the 
+test database with records to support your test. 
 """
+
+
+def setUp(self):
+    self.monkey = Client()
+    self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
+
+    # fill test database with the things in thingList
+    for i in self.thingList.keys():
+        temp = MyUser(name=i, password=i)
+        temp.save()
+        for j in self.thingList[i]:
+            Stuff(name=j, owner=temp).save()
 
 
 class LoginList(TestCase):
     monkey = None
     thingList = None
-
-    def setUp(self):
-        self.monkey = Client()
-        self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
-
-        # fill test database with the things in thingList
-        for i in self.thingList.keys():
-            temp = MyUser(name=i, password=i)
-            temp.save()
-            for j in self.thingList[i]:
-                Stuff(name=j, owner=temp).save()
 
     def test_correctName(self):
         for i in self.thingList.keys():
@@ -50,16 +54,6 @@ class LoginFail(TestCase):
     monkey = None
     thingList = None
 
-    def setUp(self):
-        self.monkey = Client()
-        self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
-        # fill test database
-        for i in self.thingList.keys():
-            temp = MyUser(name=i, password=i)
-            temp.save()
-            for j in self.thingList[i]:
-                Stuff(name=j, owner=temp).save()
-
     # test methods should confirm correct error message is displayed when a bad password is entered.
     # I had separate tests for no password, someone else's password
     def test_noPassword(self):
@@ -79,19 +73,10 @@ class AddItem(TestCase):
     monkey = None
     thingList = None
 
-    def setUp(self):
-        self.monkey = Client()
-        self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
-        # fill test database
-        for i in self.thingList.keys():
-            temp = MyUser(name=i, password=i)
-            temp.save()
-            for j in self.thingList[i]:
-                Stuff(name=j, owner=temp).save()
-
     def test_addItem(self):
         resp = self.monkey.post("/", {"name": "one", "password": "one"}, follow=True)
-        self.assertRedirects(resp, "/things/", status_code=302, target_status_code=200, msg_prefix="redirect not working")
+        self.assertRedirects(resp, "/things/", status_code=302, target_status_code=200, msg_prefix="redirect not "
+                                                                                                   "working")
 
         resp = self.monkey.post("/things/", {"stuff": "newItem"})
         self.assertIn("newItem", resp.context["things"], "new item not added to list")
