@@ -32,6 +32,9 @@ class LoginList(TestCase):
                 resp.context["name"], i, "name not passed from login to list"
             )
             # should check session as well
+            self.assertEqual(
+                self.monkey.session["name"], i, "name not passed from login to session"
+            )
 
     def test_complete(self):
         # completed, confirms all the items defined in thingList appear in their owner's page
@@ -70,9 +73,51 @@ class LoginFail(TestCase):
 
     # test methods should confirm correct error message is displayed when a bad password is entered.
     # I had separate tests for no password, someone else's password
+    def test_noPassword(self):
+        for i in self.thingList.keys():
+            resp = self.monkey.post("/", {"name": i, "password": ""}, follow=True)
+            self.assertIn(
+                "bad password",
+                resp.context["message"],
+                "incorrect password message not displayed",
+            )
+
+    def test_wrongPassword(self):
+        for i in self.thingList.keys():
+            resp = self.monkey.post("/", {"name": i, "password": "wrong"}, follow=True)
+            self.assertIn(
+                "bad password",
+                resp.context["message"],
+                "incorrect password message not displayed",
+            )
 
 
 class AddItem(TestCase):
-    pass
     # need to create database in setup
     # confirm that after an add item form is submitted, that the new item is in the database and appears in the response webpage
+    monkey = None
+    thingList = None
+    
+    def setUp(self):
+        # completed
+        self.monkey = Client()
+        self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
+        # fill test database
+        for i in self.thingList.keys():
+            temp = MyUser(name=i, password=i)
+            temp.save()
+            for j in self.thingList[i]:
+                Stuff(name=j, owner=temp).save()
+
+    def test_addItem(self):
+        resp = self.monkey.post("/", {"name": "one", "password": "one"}, follow=True)
+        self.assertRedirects(
+            resp,
+            "/things/",
+            status_code=302,
+            target_status_code=200,
+            msg_prefix="redirect not " "working",
+        )
+
+        resp = self.monkey.post("/things/", {"stuff": "newItem"})
+        self.assertIn("newItem", resp.context["things"], "new item not added to list")
