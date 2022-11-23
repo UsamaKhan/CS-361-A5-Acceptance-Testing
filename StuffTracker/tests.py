@@ -92,6 +92,38 @@ class LoginFail(TestCase):
             )
 
 
+class NewUser(TestCase):
+    monkey = None
+    thingList = None
+
+    def setUp(self):
+        # completed
+        self.monkey = Client()
+        self.thingList = {"one": ["cat", "dog"], "two": ["cake"]}
+        # fill test database
+        for i in self.thingList.keys():
+            temp = MyUser(name=i, password=i)
+            temp.save()
+            for j in self.thingList[i]:
+                Stuff(name=j, owner=temp).save()
+
+    def test_newUser(self):
+        self.monkey.post("/", {"name": "new", "password": "new"}, follow=True)
+        self.assertEqual(
+            MyUser.objects.filter(name="new").count(),
+            1,
+            "new user not added to database",
+        )
+
+    def test_noPassword(self):
+        self.monkey.post("/", {"name": "new", "password": ""}, follow=True)
+        self.assertEqual(
+            MyUser.objects.filter(name="new").count(),
+            0,
+            "new user added to database with no password",
+        )
+
+
 class AddItem(TestCase):
     # need to create database in setup
     # confirm that after an add item form is submitted, that the new item is in the database and appears in the response webpage

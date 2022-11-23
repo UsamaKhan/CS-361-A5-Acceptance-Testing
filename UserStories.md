@@ -11,15 +11,20 @@ As a new user, I need to be able to create a new account so that I can use the a
 **Acceptance Criteria:**
 
     Given: I am a new user
-    When:  I visit the application
-    And:   I click on the "Register" link
-    Then:  I should be taken to the registration page
-<!-- tsk -->
-    Given: I am on the registration page
-    When:  I enter my email address
+    And:   I am on the registration page
+    When:  I enter my username
     And:   I enter a valid password
-    And:   I click on the "Register" button
-    Then:  I should be taken to the login page
+    And:   I click on the "Login" button
+    Then:  My account is created
+    And:   I am redirected to the home page
+<!-- tsk -->
+    Given: I am a new user
+    And:   I am on the registration page
+    When:  I enter my username
+    And:   I enter do not enter a password
+    And:   I click on the "Login" button
+    Then:  My account is not created
+    And:   I should see an error message
 
 ### User Story 2
 
